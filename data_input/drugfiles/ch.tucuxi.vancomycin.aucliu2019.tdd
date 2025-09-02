@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version='0.6' xsi:noNamespaceSchemaLocation='drugfile.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+    <history>
+        <revisions>
+            <revision>
+                <revisionAction>creation</revisionAction>
+                <revisionAuthorName>Julien Massari</revisionAuthorName>
+                <institution>
+                </institution>
+                <email>ju.massari7@gmail.com</email>
+                <date>2020-06-08</date>
+                <comments/>
+            </revision>
+            <revision>
+                <revisionAction>modification</revisionAction>
+                <revisionAuthorName>Yann Thoma</revisionAuthorName>
+                <institution>HEIG-VD</institution>
+                <email>yann.thoma@heig-vd.ch</email>
+                <date>2020-07-13</date>
+                <comments>
+                    <comment lang='en'>Modified the GFR estimation. It now uses the Cockroft-Gault equation.</comment>
+                </comments>
+            </revision>
+            <revision>
+                <revisionAction>modification</revisionAction>
+                <revisionAuthorName>Yann Thoma</revisionAuthorName>
+                <institution>HEIG-VD</institution>
+                <email>yann.thoma@heig-vd.ch</email>
+                <date>2021-01-04</date>
+                <comments>
+                    <comment lang='en'>Modified the bodyweight validation inputs</comment>
+                </comments>
+            </revision>
+        </revisions>
+    </history>
+    <head>
+        <drug>
+            <atcs>
+                <atc>J01XA01</atc>
+            </atcs>
+            <activeSubstances>
+                <activeSubstance>vancomycin</activeSubstance>
+            </activeSubstances>
+            <drugName>
+                <name lang='en'>Vancomycin</name>
+                <name lang='fr'>Vancomycine</name>
+            </drugName>
+            <drugDescription>
+                <desc lang='en'>Vancomycin is an antibiotic used to treat a number of bacterial infections. It is recommended intravenously as a treatment for complicated skin infections, bloodstream infections, endocarditis, bone and joint infections, and meningitis caused by methicillin-resistant Staphylococcus aureus. Blood levels may be measured to determine the correct dose.</desc>
+            </drugDescription>
+            <tdmStrategy>
+                <text lang='en'>AUC24/MIC</text>
+            </tdmStrategy>
+        </drug>
+        <study>
+            <studyName>
+                <name lang='en'>A population pharmacokinetic model of vancomycin for dose individualization based on serum cystatin C as a marker of renal function</name>
+            </studyName>
+            <studyAuthors>Tao-tao Liua , Hui-mei Panga, Li Jinga, Wen-xing Weia, Xiao-ling Qina, Qing Guoa, Hua Lua,Dao-hai Chenga and Wei-zhe Jiang</studyAuthors>
+            <description>
+                <desc lang='en'>
+                </desc>
+            </description>
+            <references>
+                <reference type='bibtex'>
+                    <![CDATA[@Article{Liu2019,
+  author        = {Liu, Tao-tao and Pang, Hui-mei and Jing, Li and Wei, Wen-xing and Qin, Xiao-ling and Guo, Qing and Lu, Hua and Cheng, Dao-hai and Jiang, Wei-zhe},
+  title         = {{A population pharmacokinetic model of vancomycin for dose individualization based on serum cystatin C as a marker of renal function}},
+  journal       = {Journal of Pharmacy and Pharmacology},
+  year          = {2019},
+  volume        = {71},
+  number        = {6},
+  pages         = {945-955},
+  month         = {03},
+  issn          = {0022-3573},
+  abstract      = {{This study aimed to establish a vancomycin population pharmacokinetics (PPK) model based on serum cystatin C and to optimize dosing for achieving targeted steady-state trough concentrations (Css) of 10–15 and 15–20 mg/l.Patients aged ≥18 years were prospectively enrolled. A vancomycin PPK model was built with glomerular filtration rate (GFR) as a renal covariate estimated by cystatin C. A new group of patients were used for external evaluation. PPK analysis and Monte Carlo simulations were performed using nonlinear mixed effect modelling programme.Two hundreds of patients with 514 samples were included. The final model was CL (L/h) = (5.07 × (GFR/105.5)0.524 × (AGE/48.5)−0.309 × (WT/60)0.491); V (l) = 46.3. Internal and external evaluations demonstrated good stability and predictability. The average probability of target attainment (PTA) of optimal dosing regimens for targeted Css achieving 10–15 and 15–20 mg/l were 51.2\\% and 40.6\\%, respectively. An average PTA ≥71\\% for targeted concentration of 10–20 mg/l was obtained.A vancomycin PPK model with cystatin C as the renal marker has good stability and predictability. The new proposed dosing regimens were predicted to achieve a good PTA.}},
+  doi           = {10.1111/jphp.13071},
+  eprint        = {https://academic.oup.com/jpp/article-pdf/71/6/945/36591601/jphp13071.pdf},
+  url           = {https://doi.org/10.1111/jphp.13071},
+}]]>
+                </reference>
+            </references>
+        </study>
+        <comments>
+            <comment lang='en'>Objectives : This study aimed to establish a vancomycin population pharmacokinetics (PPK) model based on serum cystatin C and to optimize dosing for achieving targeted steady-state trough concentrations (Css) of 10–15 and 15– 20 mg/l.
+
+                                                                                Methods : Patients aged &gt;=18 years were prospectively enrolled. A vancomycin PPK model was built with glomerular filtration rate (GFR) as a renal covariate estimated by cystatin C. A new group of patients were used for external evaluation. PPK analysis and Monte Carlo simulations were performed using nonlinear mixed effect modelling programme.
+
+                                                                                Key findings : Two hundreds of patients with 514 samples were included. The final model was CL (L/h) = (5.07 * (GFR/105.5)^0.524 * (AGE/48.5)^-0.309 * (WT/60)^0.491); V (l) = 46.3. Internal and external evaluations demonstrated good stability and predictability. The average probability of target attainment (PTA) of optimal dosing regimens for targeted Css achieving 10–15 and 15–20 mg/l were 51.2% and 40.6%, respectively. An average PTA ≥71% for targeted concentration of 10–20 mg/l was obtained.
+
+                                                            Conclusions : A vancomycin PPK model with cystatin C as the renal marker has good stability and predictability. The new proposed dosing regimens were predicted to achieve a good PTA.</comment>
+        </comments>
+    </head>
+    <drugModel>
+        <drugId>vancomycin</drugId>
+        <drugModelId>ch.tucuxi.vancomycin.aucliu2019</drugModelId>
+        <domain>
+            <description>
+                <desc lang='en'>Patients aged &gt;=18 years were prospectively enrolled. A vancomycin PPK model was built with glomerular filtration rate (GFR) as a renal covariate estimated by cystatin C.
+                                                                </desc>
+            </description>
+            <constraints>
+                <constraint>
+                    <constraintType>hard</constraintType>
+                    <errorMessage>
+                        <text lang='en'>The age shall be greater or equal to 18</text>
+                    </errorMessage>
+                    <requiredCovariates>
+                        <covariateId>age</covariateId>
+                    </requiredCovariates>
+                    <checkOperation>
+                        <softFormula>
+                            <inputs>
+                                <input>
+                                    <id>age</id>
+                                    <type>int</type>
+                                </input>
+                            </inputs>
+                            <code>
+                                <![CDATA[return (age > 17);
+                                ]]>
+                            </code>
+                        </softFormula>
+                        <comments/>
+                    </checkOperation>
+                    <comments/>
+                </constraint>
+            </constraints>
+        </domain>
+        <covariates>
+        <covariate>
+            <covariateId>creatinine</covariateId>
+            <covariateName>
+                <name lang='en'>Creatinine</name>
+                <name lang='fr'>Créatinine</name>
+            </covariateName>
+            <description>
+                <desc lang='en'>Creatinine</desc>
+                <desc lang='fr'>Créatinine</desc>
+            </description>
+            <unit>umol/l</unit>
+            <covariateType>standard</covariateType>
+            <dataType>double</dataType>
+            <interpolationType>linear</interpolationType>
+            <refreshPeriod>
+                <unit>h</unit>
+                <value>1</value>
+            </refreshPeriod>
+            <covariateValue>
+                <standardValue>86</standardValue>
+            </covariateValue>
+            <validation>
+                <errorMessage>
+                    <text lang='fr'>The creatinine shall be positive.</text>
+                </errorMessage>
+                <operation>
+                    <softFormula>
+                        <inputs>
+                            <input>
+                                <id>creatinine</id>
+                                <type>double</type>
+                            </input>
+                        </inputs>
+                        <code>
+                            <![CDATA[
+                            return creatinine > 0.0;
+                            ]]>
+                        </code>
+                    </softFormula>
+                    <comments/>
+                </operation>
+                <comments/>
+            </validation>
+            <comments>
+                <comment lang='en'>The unit is in umol/l.
+                The default value of creatinine still have to be strictly defined.</comment>
+            </comments>
+        </covariate>
+            <covariate>
+                <covariateId>GFR</covariateId>
+                <covariateName>
+                    <name lang='en'>eGFR</name>
+                </covariateName>
+                <description>
+                    <desc lang='fr'>Débit de Filtration Glomérulaire</desc>
+                    <desc lang='en'>Glomerular Filtration Rate</desc>
+                </description>
+                <unit>ml/min</unit>
+                <covariateType>standard</covariateType>
+                <dataType>double</dataType>
+                <interpolationType>linear</interpolationType>
+                <refreshPeriod>
+                    <unit>d</unit>
+                    <value>1</value>
+                </refreshPeriod>
+                <covariateValue>
+                    <standardValue>105.5</standardValue>
+                    <aprioriComputation>
+                        <hardFormula>OperationEGFRCockcroftGaultGeneral</hardFormula>
+                        <comments/>
+                    </aprioriComputation>
+                </covariateValue>
+                <validation>
+                    <errorMessage>
+                        <text lang='en'>The GFR shall be positive.</text>
+                    </errorMessage>
+                    <operation>
+                        <softFormula>
+                            <inputs>
+                                <input>
+                                    <id>GFR</id>
+                                    <type>double</type>
+                                </input>
+                            </inputs>
+                            <code>
+                                <![CDATA[return GFR > 0.0;]]>
+                            </code>
+                        </softFormula>
+                        <comments/>
+                    </operation>
+                    <comments/>
+                </validation>
+                <comments>
+                    <comment lang='en'>
+                    </comment>
+                </comments>
+            </covariate>
+            <covariate>
+                <covariateId>age</covariateId>
+                <covariateName>
+                    <name lang='en'>Age</name>
+                </covariateName>
+                <description>
+                    <desc lang='en'>
+                    </desc>
+                </description>
+                <unit>year</unit>
+                <covariateType>ageInYears</covariateType>
+                <dataType>double</dataType>
+                <interpolationType>linear</interpolationType>
+                <refreshPeriod>
+                    <unit>y</unit>
+                    <value>1</value>
+                </refreshPeriod>
+                <covariateValue>
+                    <standardValue>48.5</standardValue>
+                </covariateValue>
+                <validation>
+                    <errorMessage>
+                        <text lang='en'>The age shall be positive.</text>
+                    </errorMessage>
+                    <operation>
+                        <softFormula>
+                            <inputs>
+                                <input>
+                                    <id>age</id>
+                                    <type>double</type>
+                                </input>
+                            </inputs>
+                            <code>
+                                <![CDATA[return age > 0.0;]]>
+                            </code>
+                        </softFormula>
+                        <comments/>
+                    </operation>
+                    <comments/>
+                </validation>
+                <comments>
+                    <comment lang='en'>
+                    </comment>
+                </comments>
+            </covariate>
+            <covariate>
+                <covariateId>bodyweight</covariateId>
+                <covariateName>
+                    <name lang='en'>Body weight</name>
+                </covariateName>
+                <description>
+                    <desc lang='en'>Total body weight of patient, in kilogramms</desc>
+                </description>
+                <unit>kg</unit>
+                <covariateType>standard</covariateType>
+                <dataType>double</dataType>
+                <interpolationType>linear</interpolationType>
+                <refreshPeriod>
+                    <unit>d</unit>
+                    <value>1</value>
+                </refreshPeriod>
+                <covariateValue>
+                    <standardValue>60</standardValue>
+                </covariateValue>
+                <validation>
+                    <errorMessage>
+                        <text lang='fr'>
+                        </text>
+                    </errorMessage>
+                    <operation>
+                        <softFormula>
+                            <inputs>
+                                <input>
+                                    <id>bodyweight</id>
+                                    <type>double</type>
+                                </input>
+                            </inputs>
+                            <code>
+                                <![CDATA[return (bodyweight < 150) && (bodyweight > 40);
+                                    ]]>
+                                </code>
+                            </softFormula>
+                            <comments/>
+                        </operation>
+                        <comments/>
+                    </validation>
+                    <comments>
+                        <comment lang='en'>
+                        </comment>
+                    </comments>
+                </covariate>
+                <covariate>
+                    <covariateId>sex</covariateId>
+                    <covariateName>
+                        <name lang='en'>Sex</name>
+                        <name lang='fr'>Sexe</name>
+                    </covariateName>
+                    <description>
+                        <desc lang='en'>Sex of the patient</desc>
+                        <desc lang='fr'>Sexe du patient</desc>
+                    </description>
+                    <unit>-</unit>
+                    <covariateType>sex</covariateType>
+                    <dataType>double</dataType>
+                    <interpolationType>direct</interpolationType>
+                    <refreshPeriod>
+                        <unit>d</unit>
+                        <value>30</value>
+                    </refreshPeriod>
+                    <covariateValue>
+                        <standardValue>0.5</standardValue>
+                    </covariateValue>
+                    <validation>
+                        <errorMessage>
+                            <text lang='en'>Sex should be in the range [0,1].</text>
+                        </errorMessage>
+                        <operation>
+                            <softFormula>
+                                <inputs>
+                                    <input>
+                                        <id>sex</id>
+                                        <type>double</type>
+                                    </input>
+                                </inputs>
+                                <code>
+                                    <![CDATA[return ((sex >= 0.0) && (sex <= 1.0));]]>
+                                    </code>
+                                </softFormula>
+                                <comments/>
+                            </operation>
+                            <comments/>
+                        </validation>
+                        <comments/>
+                    </covariate>
+                </covariates>
+                <activeMoieties>
+                    <activeMoiety>
+                        <activeMoietyId>vancomycin</activeMoietyId>
+                        <activeMoietyName>
+                            <name lang='en'>Vancomycin</name>
+                        </activeMoietyName>
+                        <unit>mg/l</unit>
+                        <analyteIdList>
+                            <analyteId>vancomycin</analyteId>
+                        </analyteIdList>
+                        <analytesToMoietyFormula>
+                            <hardFormula>direct</hardFormula>
+                            <comments/>
+                        </analytesToMoietyFormula>
+                        <targets>
+                            <target>
+                                    <targetType>auc24DividedByMic</targetType>
+                                    <targetValues>
+                                        <unit>h</unit>
+                                        <!-- <min>
+                                            <standardValue>400.0</standardValue>
+                                        </min>
+                                        <max>
+                                            <standardValue>600.0</standardValue>
+                                        </max>
+                                        <best>
+                                            <standardValue>500</standardValue>
+                                        </best>
+                                        <toxicityAlarm>
+                                            <standardValue>1000.0</standardValue>
+                                        </toxicityAlarm>
+                                        <inefficacyAlarm>
+                                            <standardValue>300.0</standardValue>
+                                        </inefficacyAlarm> -->
+                                        <min>
+                                            <standardValue>400.0</standardValue>
+                                        </min>
+                                        <max>
+                                            <standardValue>600.0</standardValue>
+                                        </max>
+                                        <best>
+                                            <standardValue>500.0</standardValue>
+                                        </best>
+                                        <toxicityAlarm>
+                                            <!-- <standardValue>800.0</standardValue> -->
+                                            <standardValue>650.0</standardValue>
+                                        </toxicityAlarm>
+                                        <inefficacyAlarm>
+                                            <standardValue>360.0</standardValue>
+                                        </inefficacyAlarm>
+                                        <mic>
+                                            <unit>mg/l</unit>
+                                            <micValue>
+                                                <standardValue>1.0</standardValue>
+                                            </micValue>
+                                        </mic>
+                                    </targetValues>
+                                    <comments>
+                                        <comment lang='en'>Targets suggested by Philip Drennan -- 500 is the middle of the target range 400 - 600 and is an arbitrary choice</comment>
+                                    </comments>
+                                </target>
+                        </targets>
+                    </activeMoiety>
+                </activeMoieties>
+                <analyteGroups>
+                    <analyteGroup>
+                        <groupId>vancomycin</groupId>
+                        <pkModelId>linear.1comp.macro</pkModelId>
+                        <analytes>
+                            <analyte>
+                                <analyteId>vancomycin</analyteId>
+                                <unit>mg/l</unit>
+                                <molarMass>
+                                    <value>1449.3</value>
+                                    <unit>g/mol</unit>
+                                </molarMass>
+                                <description>
+                                    <desc lang='en'>
+                                    </desc>
+                                </description>
+                                <errorModel>
+                                    <errorModelType>mixed</errorModelType>
+                                    <sigmas>
+                                        <sigma>
+                                            <standardValue>1.28</standardValue>
+                                        </sigma>
+                                        <sigma>
+                                            <standardValue>0.157</standardValue>
+                                        </sigma>
+                                    </sigmas>
+                                    <comments/>
+                                </errorModel>
+                                <comments/>
+                            </analyte>
+                        </analytes>
+                        <dispositionParameters>
+                            <parameters>
+                                <parameter>
+                                    <parameterId>CL</parameterId>
+                                    <unit>l/h</unit>
+                                    <parameterValue>
+                                        <standardValue>5.07</standardValue>
+                                        <aprioriComputation>
+                                            <softFormula>
+                                                <inputs>
+                                                    <input>
+                                                        <id>bodyweight</id>
+                                                        <type>double</type>
+                                                    </input>
+                                                    <input>
+                                                        <id>GFR</id>
+                                                        <type>double</type>
+                                                    </input>
+                                                    <input>
+                                                        <id>age</id>
+                                                        <type>double</type>
+                                                    </input>
+                                                </inputs>
+                                                <code>
+                                                    <![CDATA[BW = bodyweight;
+
+                                                    theta_1 = 0.524; //GFR
+                                                    theta_2 = 0.309; //AGE
+                                                    theta_3 = 0.491; // BW
+
+                                                    TVCL = 5.07 * Math.pow(GFR/105.5,theta_1)*Math.pow(age/48.5,-theta_2)*Math.pow(BW/60,theta_3);
+                                                    return TVCL;]]>
+                                                </code>
+                                            </softFormula>
+                                            <comments/>
+                                        </aprioriComputation>
+                                    </parameterValue>
+                                    <bsv>
+                                        <bsvType>proportional</bsvType>
+                                        <stdDevs>
+                                            <stdDev>0.208</stdDev>
+                                        </stdDevs>
+                                    </bsv>
+                                    <validation>
+                                        <errorMessage>
+                                            <text lang='fr'>
+                                            </text>
+                                        </errorMessage>
+                                        <operation>
+                                            <softFormula>
+                                                <inputs>
+                                                    <input>
+                                                        <id>CL</id>
+                                                        <type>double</type>
+                                                    </input>
+                                                </inputs>
+                                                <code>
+                                                    <![CDATA[
+                                                    return CL > 0.0;
+                                                    ]]>
+                                                </code>
+                                            </softFormula>
+                                            <comments/>
+                                        </operation>
+                                        <comments/>
+                                    </validation>
+                                    <comments/>
+                                </parameter>
+                                <parameter>
+                                    <parameterId>V</parameterId>
+                                    <unit>l</unit>
+                                    <parameterValue>
+                                        <standardValue>46.3</standardValue>
+                                    </parameterValue>
+                                    <bsv>
+                                        <bsvType>proportional</bsvType>
+                                        <stdDevs>
+                                            <stdDev>0.181</stdDev>
+                                        </stdDevs>
+                                    </bsv>
+                                    <validation>
+                                        <errorMessage>
+                                            <text lang='fr'>
+                                            </text>
+                                        </errorMessage>
+                                        <operation>
+                                            <softFormula>
+                                                <inputs>
+                                                    <input>
+                                                        <id>V</id>
+                                                        <type>double</type>
+                                                    </input>
+                                                </inputs>
+                                                <code>
+                                                    <![CDATA[
+                                                    return V > 0.0;
+                                                    ]]>
+                                                </code>
+                                            </softFormula>
+                                            <comments/>
+                                        </operation>
+                                        <comments/>
+                                    </validation>
+                                    <comments/>
+                                </parameter>
+                            </parameters>
+                            <correlations/>
+                        </dispositionParameters>
+                    </analyteGroup>
+                </analyteGroups>
+                <formulationAndRoutes default='id0'>
+                    <formulationAndRoute>
+                        <formulationAndRouteId>id0</formulationAndRouteId>
+                        <formulation>parenteralSolution</formulation>
+                        <administrationName>champ libre</administrationName>
+                        <administrationRoute>intravenousDrip</administrationRoute>
+                        <absorptionModel>infusion</absorptionModel>
+                        <dosages>
+                            <analyteConversions>
+                                <analyteConversion>
+                                    <analyteId>vancomycin</analyteId>
+                                    <factor>1</factor>
+                                </analyteConversion>
+                            </analyteConversions>
+                            <availableDoses>
+                                <unit>mg</unit>
+                                <default>
+                                    <standardValue>1000</standardValue>
+                                </default>
+                                <rangeValues>
+                                    <from>
+                                        <standardValue>250</standardValue>
+                                    </from>
+                                    <to>
+                                        <standardValue>6000</standardValue>
+                                    </to>
+                                    <step>
+                                        <standardValue>250</standardValue>
+                                    </step>
+                                </rangeValues>
+                            </availableDoses>
+                            <availableIntervals>
+                                <unit>h</unit>
+                                <default>
+                                    <standardValue>12</standardValue>
+                                </default>
+                                <fixedValues>
+                                    <value>12</value>
+                                    <value>24</value>
+                                </fixedValues>
+                            </availableIntervals>
+                            <availableInfusions>
+                                <unit>min</unit>
+                                <default>
+                                    <standardValue>120</standardValue>
+                                </default>
+                                <fixedValues>
+                                    <value>120</value>
+                                    <value>240</value>
+                                </fixedValues>
+                            </availableInfusions>
+                            <comments/>
+                        </dosages>
+                        <absorptionParameters/>
+                    </formulationAndRoute>
+                </formulationAndRoutes>
+                <timeConsiderations>
+                    <halfLife>
+                        <unit>h</unit>
+                        <duration>
+                            <standardValue>6</standardValue>
+                        </duration>
+                        <multiplier>100</multiplier>
+                        <comments>
+                            <comment lang='en'>Taken from this website: https://www.rxlist.com/vancomycin-injection-drug.htm</comment>
+                        </comments>
+                    </halfLife>
+                    <outdatedMeasure>
+                        <unit>d</unit>
+                        <duration>
+                            <standardValue>100</standardValue>
+                        </duration>
+                        <comments>
+                            <comment lang='en'>
+                            </comment>
+                        </comments>
+                    </outdatedMeasure>
+                </timeConsiderations>
+                <comments/>
+            </drugModel>
+        </model>
