@@ -95,7 +95,7 @@ def parse_the_args():
    
 
 
-    # 有关结果图的时间点数的参数
+    # Parameters relating to the number of time points
     parser.add_argument('--num_con', type = int, default = 10,
                         help = 'How many concentrations in each axis should be considered in the 3D_errorgrid')
     parser.add_argument('--nb_points_per_hour', type = int, default = 20,
@@ -104,17 +104,18 @@ def parse_the_args():
                         help = 'The hours to draw a new 3D_errorgrid after a new dose in the steady state. Expected format: \"' + str([1, 2, 3]) + '\"')   
     parser.add_argument('--percentiles', type = parse_list, default = percentiles,
                         help = 'The range of percentiles to calculate distribution and plot range')       
-    # 有关想要实现的功能
+    # Parameters relating to the function
     parser.add_argument('--measurement_error', type = bool, default = 1, help = 'The construction of error grid to show measurement error tolerance.')
     parser.add_argument('--measurement_error_distribution_type', type = str, default = 'uniform')
-    # 有关绘制全局图或者局部图
+    # Parameters relating to the result plot
     parser.add_argument('--plot_full_matrix', type = bool, default = 1, help = 'The flag to plot full matrix or not.')
     parser.add_argument('--mea_range', type = parse_list, default = [32000, 35000], help = 'The measured concentration range of sub-plot.')
     parser.add_argument('--true_range', type = parse_list, default = [5000, 15000], help = 'The true concentration range of sub-plot.')
     parser.add_argument('--unit_change_flag', type = bool, default = 0, help = 'The flag for unit changing.')
     parser.add_argument('--unit_change_to', type = str, default = 'mg/l')
+    parser.add_argument('--plot_3d', type = bool, default = 1, help = 'Plot 3D figure')
 
-    # 有关初始dosage的参数
+    # Parameters relating to the inital dosage
     parser.add_argument('--drug_folder_path', type = str, default = drug_folder_path,
                         help = 'The path of the drug files folder.')
     parser.add_argument('--drug_model_path', type = str, default = drugmodel,
@@ -137,8 +138,7 @@ def parse_the_args():
     parser.add_argument('--target_value_select', type = str, default = 'automatic',
                         help = 'The value used for target setting. (automatic: use information in drug file; manual: use information by input)')
     
-    # 三维图绘制参数
-    parser.add_argument('--plot_3d', type = bool, default = 1, help = 'Plot 3D figure')
+    
 
     return parser
 
@@ -148,9 +148,7 @@ def parse_the_args():
 def check_attribute(example_object):
     all_attributes = dir(example_object)
 
-    # 打印对象的所有属性和对应的值
     for attribute in all_attributes:
-        # 使用 getattr() 获取属性值
         attribute_value = getattr(example_object, attribute)
         print(f"{attribute}: {attribute_value}")
 
@@ -175,7 +173,6 @@ class Default_dose:
     def __init__(self, formulationAndRoute):
         self.value = float(formulationAndRoute.dosages.availableDoses.find('default').standardValue.string)
         self.unit = formulationAndRoute.dosages.availableDoses.unit.string
-        # oral的情况没有这个参数
         if formulationAndRoute.administrationRoute.string == 'oral':
             self.infusionTimeInMinutes = str_to_time('1:00:00')
         else:
@@ -341,7 +338,6 @@ def fixed_target_sequence_produce(drug_input):
     ax1.set_xlabel("%s"%(target_type) + ' (%s)'%(target_unit), fontsize = fontsize_fig)
     plt.title('%s'%(drug_input.drugId) , fontsize = fontsize_fig)
 
-    # plt.legend(fontsize = fontsize_fig, loc = 0)
     y_major_locator = MultipleLocator(1)
     ax1.yaxis.set_major_locator(y_major_locator)
 
@@ -364,10 +360,9 @@ def range_define(args, drug_input, query, dosage_date, dosage_duration):
     target_type= drug_input.targets[0].targetType
 
 
-    # threshold_range = [[0, target_inefficacyAlarm], [target_inefficacyAlarm, target_min], [target_min, target_max], [target_max, target_toxicityAlarm], [target_toxicityAlarm, float('inf')]]
-    # threshold_label = [-2, -1, 0, 1, 2]
 
-    # 先加入一个dosage
+
+    # Add one dosage
     query.drugs[0].dosageHistory.dosageTimeRanges = []
     dosage_history = []
     
@@ -392,40 +387,26 @@ def range_define(args, drug_input, query, dosage_date, dosage_duration):
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
         query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
 
-    # 清除原有的sample
+    # clean old samples
     query.drugs[0].samples = []
 
-    # 增加一个看prior的request
+    # request for prior
     query.requests = []
     request = R.Request()
     request.requestId = 'apriori'
     request.drugId = drug_input.drugId
     request.drugModelId = drug_input.drugModelId
     computing_option = R.ComputingOption(R.ParametersTypeEnum.apriori, R.CompartmentOptionEnum.allActiveMoieties, True, True, True)
-    # ranks = [5, 95]
-    # ranks = [1, 99]
     ranks = args.percentiles
     request.computingTraits = R.PercentilesTraits.create_percentiles_traits(args.nb_points_per_hour, dosage_end_date - timedelta(days = 2), dosage_end_date, computing_option, ranks)
     query.requests.append(request)
 
     exporter = ExportTqf()
     prior_content = exporter.export_to_string(query, args.query_example_path)
-
-
-    # print("Tqf Content is:")
-    # print(prior_content)
-
-    # print("=" * 50)
-
-
+  
 
     prior_results = module.compute_tqf2object(prior_content, [args.drug_folder_path])
   
-
-    # # 输出具体内容
-    # print(f"Results are : {prior_results}")
-    # display_computing_query_response(prior_results)
-    
 
     assert prior_results.query_status == module.QueryStatus.ok
     for srd in prior_results.responses:
@@ -468,7 +449,6 @@ def distribution_error(args, con_list):
     if args.measurement_error_distribution_type == 'uniform':
         samples = np.random.uniform(-25, 25, 1000000)
 
-        # samples = samples[(samples > -15) & (samples < 15)]
 
         fig = plt.figure(figsize = (15, 5))
         ax1 = fig.add_subplot(111)
@@ -497,7 +477,7 @@ def distribution_error(args, con_list):
 
         fig = plt.figure(figsize = (15, 5))
         ax1 = fig.add_subplot(111)
-        # KDE 分布图
+        # KDE distribution
         sns.kdeplot(samples,  bw_adjust = 1, shade = True)
         plt.title('Relative Error Distribution', fontsize = fontsize_fig)
         plot_line = sns.kdeplot(samples, bw_adjust = 1)
@@ -509,7 +489,6 @@ def distribution_error(args, con_list):
         
         percentage = [-15, -10, -5, 0, 5, 10, 15]
         percentage_fit = [[p, interp_func(p)] for p in percentage]
-        # print(np.array(percentage_fit)[:,1])
         plt.plot(percentage, np.array(percentage_fit)[:,1], marker = 'o', linestyle = '')
         
         ax1.set_ylabel("Probability", fontsize = fontsize_fig) 
@@ -543,14 +522,8 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
     dosage_start_date = dosage_date
     dosage_end_date = dosage_date + dosage_duration
     lasting_dosage = Q.LastingDosage()
-    # lasting_dosage.interval = str_to_time('24:00:00')
-    # lasting_dosage.dose.infusionTimeInMinutes = str_to_time('1:00:00')
-    # lasting_dosage.dose.unit = 'mg'
-    # lasting_dosage.dose.value = float(400)
-    # lasting_dosage.formulationAndRoute.absorptionModel = 'extravascular'
-    # lasting_dosage.formulationAndRoute.administrationRoute = 'oral'
-    # lasting_dosage.formulationAndRoute.administrationName = 'foo bar'
-    # lasting_dosage.formulationAndRoute.formulation = 'parenteralSolution'
+
+  
     lasting_dosage.interval = drug_input.default_dose_interval
     lasting_dosage.dose.infusionTimeInMinutes = drug_input.default_dose.infusionTimeInMinutes
     lasting_dosage.dose.unit = drug_input.default_dose.unit
@@ -566,10 +539,9 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
         query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
 
-    # 清除原有的sample
+
     query.drugs[0].samples = []
 
-    # 增加一个看prior的request
     query.requests = []
     request = R.Request()
     request.requestId = 'distribution'
@@ -584,10 +556,6 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
     prior_content = exporter.export_to_string(query, args.query_example_path)
 
     prior_results = module.compute_tqf2object(prior_content, [args.drug_folder_path])
-
-    # 输出具体内容
-    # print(f"Results are : {prior_results}")
-    # display_computing_query_response(prior_results)
 
     assert prior_results.query_status == module.QueryStatus.ok
     for srd in prior_results.responses:
@@ -638,21 +606,17 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
 
         for hour_index in range(len(args.hours)):
             idx = min(range(len(time_list)), key=lambda i: abs(time_list[i] - hour_check[hour_index]))
-            # print("hhhh")
-            # print(time_list[idx])
-            # print(cycle_data_list[idx])
             hour_distribution_list[hour_index].append(cycle_data_list[idx])
 
     
     
     con_list = list(np.linspace(plot_minimum, plot_maximum, args.num_con))
-    # print(con_list)
     con_select_prob_hour = []
     
     for hour_index in range(len(args.hours)):
         fig = plt.figure(figsize = (15, 5))
         ax1 = fig.add_subplot(111)
-        # KDE 分布图
+        # KDE
         sns.kdeplot(hour_distribution_list[hour_index], shade = True)
 
         plot_line = sns.kdeplot(hour_distribution_list[hour_index])
@@ -664,7 +628,7 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
         
         con_select_prob = []
         for con in con_list:
-            # if (con <= max(hour_distribution_list[hour_index]) and con >= min(hour_distribution_list[hour_index])):
+           
             if interp_func(con) > 0:
                 con_select_prob.append(interp_func(con))
             else:
@@ -672,9 +636,6 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
 
         con_select_prob_hour.append(con_select_prob)
                 
-        # con_select_prob = [[con, interp_func(con)] for con in con_list if (con <= max(hour_distribution_list[hour_index]) and con >= min(hour_distribution_list[hour_index]))]
-        # plt.plot(con_list, con_select_prob, marker = 'o', linestyle = '')
-
         plt.title('Distribution (Sampling time: %d hours)' % (args.hours[hour_index]), fontsize = fontsize_fig)
         
         ax1.set_ylabel("Probability", fontsize = fontsize_fig) 
@@ -723,132 +684,26 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
     # query.date = query.date.strftime("%Y-%m-%d %H:%M:%S")
     query.date = date_input
     
-    # # =============================================================================
-    # # 根据target设置各区间范围
-    # target_inefficacyAlarm = float(query.drugs[0].targets[0].inefficacyAlarm)
-    # target_min = float(query.drugs[0].targets[0].min)
-    # target_best = float(query.drugs[0].targets[0].best)
-    # target_max = float(query.drugs[0].targets[0].max)
-    # target_toxicityAlarm = float(query.drugs[0].targets[0].toxicityAlarm)
-    # target_unit = query.drugs[0].targets[0].unit
-
-    # threshold_range = [[0, target_inefficacyAlarm], [target_inefficacyAlarm, target_min], [target_min, target_max], [target_max, target_toxicityAlarm], [target_toxicityAlarm, float('inf')]]
-    # threshold_label = [-2, -1, 0, 1, 2]
-    
-    
-    
-    # # print(threshold_range)
-    # # print(target_unit)
-
-    # # 修改一下文件中的target
-    # query.drugs[0].targets[0].min = float('750')
-    # query.drugs[0].targets[0].max = float('1500')
-    # query.drugs[0].targets[0].best = float('1000')
-    # query.drugs[0].targets[0].unit = 'ug/l'
-    # query.drugs[0].targets[0].inefficacyAlarm = float('500')
-    # query.drugs[0].targets[0].toxicityAlarm = float('1750')
-
-    # # target_min = float('750')
-    # # target_max = float('1500')
-    # # target_best = float('1000')
-    # # target_unit = 'ug/l'
-    # # threshold_range = [[0, target_min], [target_min, target_max], [target_max, float('inf')]]
-    # # threshold_label = [-1, 0, 1]
-    # # print(threshold_range)
-    # # print(target_unit)
-
-    # target_inefficacyAlarm = float(query.drugs[0].targets[0].inefficacyAlarm)
-    # target_min = float(query.drugs[0].targets[0].min)
-    # target_best = float(query.drugs[0].targets[0].best)
-    # target_max = float(query.drugs[0].targets[0].max)
-    # target_toxicityAlarm = float(query.drugs[0].targets[0].toxicityAlarm)
-    # target_unit = query.drugs[0].targets[0].unit
-
-    # threshold_range = [[0, target_inefficacyAlarm], [target_inefficacyAlarm, target_min], [target_min, target_max], [target_max, target_toxicityAlarm], [target_toxicityAlarm, float('inf')]]
-    # threshold_label = [-2, -1, 0, 1, 2]
-
-    # # threshold_range = [[0, target_min], [target_min, target_max], [target_max, float('inf')]]
-    # threshold_label = [-1, 0, 1]
-
-    # print(threshold_range)
-    # print(target_unit)
-
+   
     # =============================================================================
-    # 改变patient的covariate
-    # for i in range(len(query.covariates)):
-    #     print(query.covariates[i].covariateId)
-    
-    # # 这个地方可以加入新的covariate
-    # query.covariates = []
-    # for cov_index in range(len(covariates_input)):
-    #     query.covariates.append(covariates_input[cov_index])
-
-    # # 增加新的covariate
-    # covariateId = 'birthdate'
-    # date = str_to_datetime(date_input)
-    # value = '1960-01-01T00:00:00'
-    # unit = '-'
-    # datatype = 'date'
-    # nature = 'discrete'
-    # covariate_new = Q.Covariate.create_covariate(covariateId, date, value, unit, datatype, nature)
-    # query.covariates.append(covariate_new)
-
-    # covariateId = 'bodyweight'
-    # date = str_to_datetime(date_input)
-    # value = '70'
-    # unit = 'kg'
-    # datatype = 'double'
-    # nature = 'continuous'
-    # covariate_new = Q.Covariate.create_covariate(covariateId, date, value, unit, datatype, nature)
-    # query.covariates.append(covariate_new)
-
-    # covariateId = 'gist'
-    # date = str_to_datetime(date_input)
-    # value = 'False'
-    # unit = '-'
-    # datatype = 'bool'
-    # nature = 'categorical'
-    # covariate_new = Q.Covariate.create_covariate(covariateId, date, value, unit, datatype, nature)
-    # query.covariates.append(covariate_new)
-
-    # # Male:1, Female:0
-    # covariateId = 'sex'
-    # date = str_to_datetime(date_input)
-    # value = '1'
-    # unit = '-'
-    # datatype = 'double'
-    # nature = 'continuous'
-    # covariate_new = Q.Covariate.create_covariate(covariateId, date, value, unit, datatype, nature)
-    # query.covariates.append(covariate_new)
-
-    # =============================================================================
-    # 更改药物基本信息
+    # drug information
     query.drugs[0].drugId = drug_input.drugId
     query.drugs[0].activePrinciple = drug_input.activePrinciple
     query.drugs[0].brandName = drug_input.brandName
     query.drugs[0].atc = drug_input.atc
     
     # =============================================================================
-    # 更改dosage history
-    # 如果patient文件中的dosage可用的话，可不修改原有dosage直接使用原始文件
-    # 直接添加新的dosage adaptation
+    # dosage history
+
 
     query.drugs[0].dosageHistory.dosageTimeRanges = []
     dosage_history = []
     
-    # dosage_start_date = str_to_datetime('2024-03-01T08:00:00')
-    # dosage_end_date = str_to_datetime('2024-03-20T08:00:00')
+    
     dosage_start_date = dosage_date
     dosage_end_date = dosage_date + dosage_duration
     lasting_dosage = Q.LastingDosage()
-    # lasting_dosage.interval = str_to_time('24:00:00')
-    # lasting_dosage.dose.infusionTimeInMinutes = str_to_time('1:00:00')
-    # lasting_dosage.dose.unit = 'mg'
-    # lasting_dosage.dose.value = float(400)
-    # lasting_dosage.formulationAndRoute.absorptionModel = 'extravascular'
-    # lasting_dosage.formulationAndRoute.administrationRoute = 'oral'
-    # lasting_dosage.formulationAndRoute.administrationName = 'foo bar'
-    # lasting_dosage.formulationAndRoute.formulation = 'parenteralSolution'
+   
     lasting_dosage.interval = drug_input.default_dose_interval
     lasting_dosage.dose.infusionTimeInMinutes = drug_input.default_dose.infusionTimeInMinutes
     lasting_dosage.dose.unit = drug_input.default_dose.unit
@@ -860,26 +715,17 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
     dosage_history_1 = Q.DosageTime.create_dosage_time_range(dosage_start_date, lasting_dosage, dosage_end_date)
     dosage_history.append(dosage_history_1)
 
-    # print(query.drugs[0].dosageHistory.dosageTimeRanges[0].dosage.dose.infusionTimeInMinutes)
-    # query.drugs[0].dosageHistory.dosageTimeRanges[0].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[0].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
-    # print(query.drugs[0].dosageHistory.dosageTimeRanges[0].dosage.dose.infusionTimeInMinutes)
-    
+   
 
     query.drugs[0].dosageHistory.dosageTimeRanges = dosage_history
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
         query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
     # =============================================================================
-    # 添加sample
+    # sample adding
     query.drugs[0].samples = []
     analyte_id = drug_input.drugId
 
 
-    # sample_id = '123456'
-    # sampledate = str_to_datetime('2018-07-07T06:00:00')
-    # concentration = 0.7
-    # sample_unit = 'mg/l'
-    # sample1 = Q.Sample.create_sample(sample_id, sampledate, analyte_id, concentration, unit)
-    # query.drugs[0].samples.append(sample1)
 
     last_sample_id = 'last'
     last_sampledate = sample_date
@@ -890,28 +736,20 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
     query.drugs[0].samples.append(last_sample)
 
     # =============================================================================
-    # 添加request
+    # request adding
     query.requests = []
-    # nb_points_per_hour = 20
+    
 
     request1 = R.Request()
     computing_option = R.ComputingOption(R.ParametersTypeEnum.aposteriori, R.CompartmentOptionEnum.allActiveMoieties, True, True, True)
-    # dosage_start_date = str_to_datetime('2018-07-06T08:00:00')
-    # dosage_end_date = str_to_datetime('2018-07-08T08:00:00')
+    
     request1.requestId = 'aposteriori'
     request1.drugId = drug_input.drugId
     request1.drugModelId = drug_input.drugModelId
     request1.computingTraits = R.PredictionTraits.create_prediction_traits(args.nb_points_per_hour, dosage_start_date, dosage_end_date, computing_option)
     query.requests.append(request1)
 
-    # request2 = R.Request()
-    # request2.requestId = 'apriori_1_percentiles'
-    # request2.drugId = drugname
-    # request2.drugModelId = drugmodel
-    # computing_option = R.ComputingOption(R.ParametersTypeEnum.apriori, R.CompartmentOptionEnum.allActiveMoieties, True, True, True)
-    # ranks = [5, 10, 25, 50, 75, 90, 95]
-    # request2.computingTraits = R.PercentilesTraits.create_percentiles_traits(nb_points_per_hour, dosage_start_date, dosage_end_date, computing_option, ranks)
-    # query.requests.append(request2)
+
 
     request3 = R.Request()
     request3.requestId = 'dosage_adjustment'
@@ -934,34 +772,19 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
     exporter = ExportTqf()
     new_content = exporter.export_to_string(query, args.query_example_path)
   
-    # 转换new_content为xml文件
-    # root_element = ET.fromstring(new_content)
-    # tree = ET.ElementTree(root_element)
-    # tree.write("new_content.xml")
     
-    
-    # print("Tqf Content is:")
-    # print(new_content)
-
-
-    # 转化为object
     results = module.compute_tqf2object(new_content, [args.drug_folder_path])
 
-    # print(results.query_status)
     assert results.query_status == module.QueryStatus.ok
     for srd in results.responses:
         assert srd.computing_response.computing_status == module.ComputingStatus.ok
     
    
 
-    # # 转化为字符串
     results_xml = module.compute_tqf(new_content, [args.drug_folder_path])
     
-    
 
 
-
-    # 整理出所有cycle data
     cycle_data = results.responses[0].computing_response.data.cycle_data
     cycle_data_list_1 = []
     time_list_1 = []
@@ -970,36 +793,25 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
         cycle_data_list_1 += cycle.concentrations[0]
         time_list_1 += [index_1 + i for i in range(len(cycle.concentrations[0]))]
         index_1 += len(cycle.concentrations[0])
-
     
 
     # =============================================================================
     results_soup = BeautifulSoup(results_xml, 'xml')
-    # if results_soup.query:
-    #     try:
-    #         results_query = Q.Query(results_soup)
-        
-    #     except Exception as e:
-    #         print('Can not import the following query file :' + FILE_NAME)
-    #         print(e)
-        
-
-    # 然后改变sample，加入新的dosage，算曲线
-    # (1) 改变sample
-    # print(len(query.drugs[0].samples))
+  
+    # (1)  change sample
+    
     query.drugs[0].samples = query.drugs[0].samples[:-1]
-    # print(len(query.drugs[0].samples))
+   
 
     last_concentration = con_pair[1]
     last_sample = Q.Sample.create_sample(last_sample_id, last_sampledate, analyte_id, last_concentration, sample_unit)
     query.drugs[0].samples.append(last_sample)
-    # print(len(query.drugs[0].samples))
+   
 
 
-
-    # (2) 加入新的dosage
+    # (2) add new dosage
     if results_soup.find('score'):
-        # 有dosage adjustment
+        # dosage adjustment found
 
         new_dosage_adjustment = results_soup.find('dosage')
         new_lasting_dosage = Q.LastingDosage()
@@ -1023,70 +835,38 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
             if type(query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes) != float:
                 query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
 
-        # (3) 原有dosage算aposteriori
-                
+        # (3) aposteriori by old dosage      
         query.requests = []
 
-        # request1 = R.Request()
-        # computing_option = R.ComputingOption(R.ParametersTypeEnum.aposteriori, R.CompartmentOptionEnum.allActiveMoieties, True, True, True)
-        # # dosage_start_date = str_to_datetime('2018-07-06T08:00:00')
-        # # dosage_end_date = str_to_datetime('2018-07-08T08:00:00')
-        # request1.requestId = 'aposteriori'
-        # request1.drugId = drugname
-        # request1.drugModelId = drugmodel
-        # request1.computingTraits = R.PredictionTraits.create_prediction_traits(nb_points_per_hour, dosage_start_date, dosage_end_date, computing_option)
-        # query.requests.append(request1)
 
-        # 新dosage算prediction
+        # prediction by new dosage
         request2 = R.Request()
         computing_option = R.ComputingOption(R.ParametersTypeEnum.aposteriori, R.CompartmentOptionEnum.allActiveMoieties, True, True, True)
-        # dosage_start_date = str_to_datetime('2018-07-06T08:00:00')
-        # dosage_end_date = str_to_datetime('2018-07-08T08:00:00')
+        
         request2.requestId = 'prediction'
         request2.drugId = drug_input.drugId
         request2.drugModelId = drug_input.drugModelId
-        # request2.computingTraits = R.PredictionTraits.create_prediction_traits(nb_points_per_hour, dosage_adjustment_date, dosage_adjustment_end, computing_option)
         request2.computingTraits = R.PredictionTraits.create_prediction_traits(args.nb_points_per_hour, dosage_start_date, dosage_adjustment_end, computing_option)
         query.requests.append(request2)
         
         
         # =============================================================================
 
-        # print("New dosage adaption:")
         exporter = ExportTqf()
         new_content = exporter.export_to_string(query, args.query_example_path)
         
-        # print("Tqf Content is:")
-        # print(new_content)
-
-
-        # 转化为object
         results = module.compute_tqf2object(new_content, [args.drug_folder_path])
 
-        # print(results.query_status)
         assert results.query_status == module.QueryStatus.ok
         for srd in results.responses:
             assert srd.computing_response.computing_status == module.ComputingStatus.ok
 
-        # # 输出具体内容
-        # print(f"Results are : {results}")
-        # display_computing_query_response(results)
-      
-
-        # print("Press any key to continue...")
-        # input()
-
-        # # 转化为字符串
+        
         results_xml = module.compute_tqf(new_content, [args.drug_folder_path])
-        # print(f"Results are: {results_xml}")
-        # sgjsgfjshgf
-        # 应该从这个地方提取statistics
-
+        
         # =============================================================================
-        # 评估这个点在哪个区
-
+      
         statistics_dict = {
-            # "startdate": [],
             "mean": [],
             "auc": [],
             "auc24": [],
@@ -1113,9 +893,7 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
         target_min = drug_input.targets[0].min
         target_metric = drug_input.targets[0].targetType
 
-        # -2: 因为如果不是完整的周期，-1得到的结果不准确
-        # 但会对cumulativeAuc产生影响
-        # cumulativeAuc选择-1
+        
         if target_metric == 'auc24DividedByMic':
             # metric_value = statistics_dict['auc'][-2] / drug_input.targets[0].mic
 
@@ -1137,13 +915,10 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
                 metric_value /= 1000
             
         
-        # print(threshold_range)
         for i, interval in enumerate(threshold_range):
-            # 判断值在哪个区间
             if interval[0] <= metric_value < interval[1]:
                 output_label = threshold_label[i]
-                # print(output_label)
-                # print(metric_value)
+                
                 break
 
         
@@ -1157,7 +932,6 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
             cycle_data_list_2 += cycle.concentrations[0]
             time_list_2 += [index_2 + i for i in range(len(cycle.concentrations[0]))]
             index_2 += len(cycle.concentrations[0])
-        # print(num_cycle)
 
         
 
@@ -1195,12 +969,9 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
             plt.draw()
             plt.pause(2)
 
-            
-
 
         return True, output_label, metric_value
     else:
-        # 没有新的dosage adjustment
         return False, 0, 0
 
 
@@ -1211,7 +982,7 @@ def threeD_plot(args, drug_result_folder):
         pattern = re.compile(rf"{re.escape(drug_result_folder)}_(\d+)\.pickle")
         matched_files = []
 
-        # 遍历目录
+        
         for root, _, files in os.walk(basepath + '/' + drug_result_folder + '/'):
             for file in files:
                 match = pattern.fullmatch(file)
@@ -1220,9 +991,8 @@ def threeD_plot(args, drug_result_folder):
                     full_path = os.path.join(root, file)
                     matched_files.append((number, full_path))
 
-        # 按提取的数字排序
         matched_files.sort(key=lambda x: x[0])
-        print(matched_files)
+        # print(matched_files)
 
         target_label = [0, 1, 2, 3, 4]
         target_color_list = ['purple', 'blue', 'green', 'darkorange', 'red']
@@ -1244,7 +1014,6 @@ def threeD_plot(args, drug_result_folder):
 
             hour_index_all.append(hour_index)
             output_label_list_all.append(output_label_list)
-            # output_postion_3D += [con + [hour_index] for con in output_con_list]
             output_postion_3D += [[con[1], con[0]] + [hour_index] for con in output_con_list]
             output_label_3D += output_label_list
         
@@ -1252,25 +1021,14 @@ def threeD_plot(args, drug_result_folder):
         points = np.array(output_postion_3D)
         labels = np.array(output_label_3D)
 
-
-        print(hour_index_all)
-        print(np.array(output_label_list).shape)
-        print(output_con_list)
-        print(len(output_label_3D))
-        print(len(output_postion_3D))
-
-
-
+      
 
         plot_minimum = output_con_list[0][0]
         plot_maximum = output_con_list[-1][0]
-        print(plot_minimum)
-        print(plot_maximum)
-        print(np.max(labels))
-        print(np.min(labels))
+        
 
         import plotly.express as px
-        print(labels.astype(str))
+  
 
         
         import plotly.graph_objects as go
@@ -1287,14 +1045,12 @@ def threeD_plot(args, drug_result_folder):
             marker=dict(
                 size=5,
                 color=color_input,
-                # opacity=0.2,
                 opacity=0.1
             ),
-            name='',              # 👈 不显示名字
-            showlegend=False      # ✅ 禁止出现在图例中
+            name='',              
+            showlegend=False     
         )])
 
-        # 添加图例项
         color_labels = {
             'purple': 'Inefficacy alarm range',
             'blue': 'Subtherapeutic range',
@@ -1306,7 +1062,7 @@ def threeD_plot(args, drug_result_folder):
         label_set = [color_all[index] for index in set(output_label_3D)]
         for color in label_set:
             fig.add_trace(go.Scatter3d(
-                x=[None], y=[None], z=[None],  # 不绘制数据点，只用于图例
+                x=[None], y=[None], z=[None],  
                 mode='markers',
                 marker=dict(size=6, color=color),
                 name=color_labels[color]
@@ -1318,10 +1074,10 @@ def threeD_plot(args, drug_result_folder):
             title=dict(
                 text='3D-ETODA',
                 font=dict(family='Times New Roman', size= 22),
-                x=0.5,  # 居中（0=左，1=右）
-                y=0.84  # 向下靠近图（默认是 0.95~1.0）
+                x=0.5,  
+                y=0.84  
             ),
-            # margin=dict(t=50),  # 减少顶部留白
+            
             margin=dict(l=10, r=10, b=5, t=50),
             width= 1000,
             height= 800,
@@ -1334,7 +1090,7 @@ def threeD_plot(args, drug_result_folder):
 
             ),
             font=dict(family='Times New Roman', size = 15),
-            # title=dict(text='3D-ETODA', font=dict(family='Times New Roman', size=20))
+           
             legend=dict(
                 x=0.8,
                 y=0.7,
@@ -1465,7 +1221,7 @@ def main():
         for hour_index in args.hours:
             print('Hours : %d' % (hour_index))
             sample_data_now = sample_date + timedelta(hours = int(hour_index))
-            # 构建输入序列
+      
             # [measurement, true]
             output_label_list = []
             output_label_matrix = np.zeros((len(con_list), len(con_list)))
@@ -1490,8 +1246,7 @@ def main():
                         output_label_matrix[con_pos[1], con_pos[0]] = label_now
                         output_label_list.append(label_now)
                         output_value_list.append(value_now)
-                        # print(label_now)
-                        # print(con)
+                        
                     else:
                         noadjustment_con_list.append(con)
                     pbar.update(1)
@@ -1503,8 +1258,6 @@ def main():
             noadjustment_con_list_all.append(noadjustment_con_list)
 
 
-            # 四周
-            # 左
             if args.plot_full_matrix:
                 i = 0
                 for j in range(1, len(con_list) - 1):
@@ -1539,7 +1292,7 @@ def main():
                             threshold_list[int(min([output_label_matrix[i + 1, j + 1], output_label_matrix[i, j]]) - 1)].append([threshold_x, threshold_y])
 
 
-                # 右
+                
                 i = len(con_list) - 1
                 for j in range(1, len(con_list) - 1):
                     if output_label_matrix[i, j - 1] != output_label_matrix[i, j]:
@@ -1572,9 +1325,8 @@ def main():
                         if [threshold_x, threshold_y] not in threshold_list[int(min([output_label_matrix[i - 1, j + 1], output_label_matrix[i, j]]) - 1)]:
                             threshold_list[int(min([output_label_matrix[i - 1, j + 1], output_label_matrix[i, j]]) - 1)].append([threshold_x, threshold_y])
 
-                    
+                          
                 
-                # 上
                 j = 0
                 for i in range(1, len(con_list) - 1):
                     if output_label_matrix[i - 1, j] != output_label_matrix[i, j]:
@@ -1610,7 +1362,6 @@ def main():
 
                 
 
-                # 下
                 j = len(con_list) - 1
                 for i in range(1, len(con_list) - 1):
                     if output_label_matrix[i - 1, j] != output_label_matrix[i, j]:
@@ -1645,7 +1396,7 @@ def main():
                         
 
 
-                # 中间区域
+              
                 for i in range(1, len(con_list) - 1):
                     for j in range(1, len(con_list) - 1):
                         if output_label_matrix[i - 1, j - 1] != output_label_matrix[i, j]:
@@ -1728,15 +1479,9 @@ def main():
                     if args.plot_full_matrix:
                         for th in range(len(threshold_list)):
                             if len(threshold_list[th]) != 0 :
-                                # print(threshold_list[th])
-                                # sorted_threshold_list = np.array(threshold_list[th])[np.lexsort((np.array(threshold_list[th])[:,0], np.array(threshold_list[th])[:,1]))]
-                                # plt.plot(sorted_threshold_list[:, 1], sorted_threshold_list[:, 0], linestyle = '--', color = 'black')
-
+                                
                                 sorted_threshold_list = np.array(threshold_list[th])[np.lexsort((np.array(threshold_list[th])[:,0], np.array(threshold_list[th])[:,1]))]
-                                # plt.plot(sorted_threshold_list[:, 1], sorted_threshold_list[:, 0], linestyle = '--', color = 'black')
-                                # plt.plot(sorted_threshold_list[:, 1], sorted_threshold_list[:, 0], marker = '.', color = 'black')
-                                # print(sorted_threshold_list[:, 1])
-                                # print(sorted_threshold_list[:, 0])
+                                
                                 x_select = copy.deepcopy(sorted_threshold_list[:, 1]/ 1000)
                                 y_select = copy.deepcopy(sorted_threshold_list[:, 0]/ 1000)
                                 distances = np.sqrt((x_select - np.mean(x_select)) ** 2 + (y_select - np.mean(y_select)) ** 2)
@@ -1759,9 +1504,7 @@ def main():
 
                     ax1.set_ylabel("Measured Concentration (mg/l)", fontsize = fontsize_fig)    
                     ax1.set_xlabel("True Concentration (mg/l)", fontsize = fontsize_fig)
-                    # plt.title('Error Grid (Sample Date : %s)'% (sample_data_now.strftime("%Y-%m-%d %H:%M:%S")) , fontsize = fontsize_fig)
-                    # plt.legend(fontsize =fontsize_fig, loc = 2)
-                    # plt.title('Error Grid - AUC/MIC (Sampling time: %d hours)' % (hour_index), fontsize = fontsize_fig)
+                   
                     plt.title('Error Grid - Trough (Sampling time: %d hours)' % (hour_index), fontsize = fontsize_fig)
 
 
@@ -1775,7 +1518,6 @@ def main():
                         label.set_fontsize(fontsize_fig)
                     
 
-                    # fig = plt.figure(figsize = (15, 5))
                     ax2 = fig.add_subplot(gs[1])
                     sns.kdeplot([m / 1000 for m in hour_distribution_list[hour_index_num]], shade = True)
                     plt.title('Distribution (Sampling time: %d hours)' % (args.hours[hour_index_num]), fontsize = fontsize_fig)
@@ -1850,15 +1592,13 @@ def main():
                 else:
                     ax1.set_ylabel("Measured Concentration (%s)"%(con_unit), fontsize = fontsize_fig)    
                     ax1.set_xlabel("True Concentration (%s)"%(con_unit), fontsize = fontsize_fig)
-                # plt.title('Error Grid (Sample Date : %s)'% (sample_data_now.strftime("%Y-%m-%d %H:%M:%S")) , fontsize = fontsize_fig)
-                # plt.legend(fontsize =fontsize_fig, loc = 2)
+               
                 plt.title('Error Grid (Sampling time: %d hours)' % (hour_index), fontsize = fontsize_fig)
 
                 plt.xlim([plot_minimum - (plot_maximum - plot_minimum) / args.num_con, plot_maximum + (plot_maximum - plot_minimum) / args.num_con])
                 plt.ylim([plot_minimum - (plot_maximum - plot_minimum) / args.num_con, plot_maximum + (plot_maximum - plot_minimum) / args.num_con])
 
-                # plt.xlim([0, plot_maximum + plot_minimum])
-                # plt.ylim([0, plot_maximum + plot_minimum])
+               
 
 
                 for label in ax1.xaxis.get_ticklabels():
@@ -1867,7 +1607,6 @@ def main():
                     label.set_fontsize(fontsize_fig)
                 
 
-                # fig = plt.figure(figsize = (15, 5))
                 ax2 = fig.add_subplot(gs[1])
                 sns.kdeplot(hour_distribution_list[hour_index_num], shade = True)
                 plt.title('Distribution (Sampling time: %d hours)' % (args.hours[hour_index_num]), fontsize = fontsize_fig)
@@ -1940,11 +1679,10 @@ def main():
                 folder = Path(base_path) / drug_result_folder
                 folder.mkdir(parents=True, exist_ok=True)  
 
-                # 拼接文件名
+                
                 filename = f"{drug_result_folder}_{hour_index}.pickle"
                 filepath = folder / filename
 
-                # 保存 pickle 文件
                 with open(filepath, "wb") as f:
                     pickle.dump(obj, f)
 
