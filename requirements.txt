@@ -1,0 +1,8 @@
+beautifulsoup4
+matplotlib
+numpy
+pandas
+plotly
+scipy
+seaborn
+tqdm
