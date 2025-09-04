@@ -28,9 +28,14 @@ import matplotlib.gridspec as gridspec
 import warnings
 warnings.filterwarnings("ignore")
 
+from matplotlib.font_manager import get_font_names
+
+def font_exists(name):
+    return name in get_font_names()
 
 fontsize_fig = 40
-plt.rc('font', family = 'Times New Roman')
+if font_exists('Times New Roman'):
+    plt.rc('font', family = 'Times New Roman')
 
 
 
@@ -185,13 +190,11 @@ class Default_formulationAndRoutes:
     formulation: str
     administrationName: str
     administrationRoute: str
-    absorptionModel: str
 
     def __init__(self, formulationAndRoute):
         self.formulation = formulationAndRoute.formulation.string
         self.administrationName = formulationAndRoute.administrationName.string
         self.administrationRoute = formulationAndRoute.administrationRoute.string
-        self.absorptionModel = formulationAndRoute.absorptionModel.string
 
 
 class Default_covariate:
@@ -385,7 +388,7 @@ def range_define(args, drug_input, query, dosage_date, dosage_duration):
 
     query.drugs[0].dosageHistory.dosageTimeRanges = dosage_history
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
-        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
+        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes
 
     # clean old samples
     query.drugs[0].samples = []
@@ -528,7 +531,6 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
     lasting_dosage.dose.infusionTimeInMinutes = drug_input.default_dose.infusionTimeInMinutes
     lasting_dosage.dose.unit = drug_input.default_dose.unit
     lasting_dosage.dose.value = drug_input.default_dose.value
-    lasting_dosage.formulationAndRoute.absorptionModel = drug_input.default_formulationAndRoutes.absorptionModel
     lasting_dosage.formulationAndRoute.administrationRoute = drug_input.default_formulationAndRoutes.administrationRoute
     lasting_dosage.formulationAndRoute.administrationName = drug_input.default_formulationAndRoutes.administrationName
     lasting_dosage.formulationAndRoute.formulation = drug_input.default_formulationAndRoutes.formulation
@@ -537,7 +539,7 @@ def distribution_plot_priori(args, drug_input, query, dosage_date, dosage_durati
 
     query.drugs[0].dosageHistory.dosageTimeRanges = dosage_history
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
-        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
+        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes
 
 
     query.drugs[0].samples = []
@@ -708,7 +710,6 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
     lasting_dosage.dose.infusionTimeInMinutes = drug_input.default_dose.infusionTimeInMinutes
     lasting_dosage.dose.unit = drug_input.default_dose.unit
     lasting_dosage.dose.value = drug_input.default_dose.value
-    lasting_dosage.formulationAndRoute.absorptionModel = drug_input.default_formulationAndRoutes.absorptionModel
     lasting_dosage.formulationAndRoute.administrationRoute = drug_input.default_formulationAndRoutes.administrationRoute
     lasting_dosage.formulationAndRoute.administrationName = drug_input.default_formulationAndRoutes.administrationName
     lasting_dosage.formulationAndRoute.formulation = drug_input.default_formulationAndRoutes.formulation
@@ -719,7 +720,7 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
 
     query.drugs[0].dosageHistory.dosageTimeRanges = dosage_history
     for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
-        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
+        query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes
     # =============================================================================
     # sample adding
     query.drugs[0].samples = []
@@ -823,7 +824,6 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
         new_lasting_dosage.dose.infusionTimeInMinutes = str_to_time(formatted_time)
         new_lasting_dosage.dose.unit = new_dosage_adjustment.find('unit').text
         new_lasting_dosage.dose.value = float(new_dosage_adjustment.find('value').text)
-        new_lasting_dosage.formulationAndRoute.absorptionModel = new_dosage_adjustment.find('absorptionModel').text
         new_lasting_dosage.formulationAndRoute.administrationRoute = new_dosage_adjustment.find('administrationRoute').text
         new_lasting_dosage.formulationAndRoute.administrationName = new_dosage_adjustment.find('administrationName').text
         new_lasting_dosage.formulationAndRoute.formulation = new_dosage_adjustment.find('formulation').text
@@ -833,7 +833,7 @@ def level_define_date(args, drug_input, covariates_input, dosage_date, dosage_du
         query.drugs[0].dosageHistory.dosageTimeRanges = dosage_history
         for i in range(len(query.drugs[0].dosageHistory.dosageTimeRanges)):
             if type(query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes) != float:
-                query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes.total_seconds() / 60
+                query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes = query.drugs[0].dosageHistory.dosageTimeRanges[i].dosage.dose.infusionTimeInMinutes
 
         # (3) aposteriori by old dosage      
         query.requests = []
