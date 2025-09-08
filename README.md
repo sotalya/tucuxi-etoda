@@ -61,7 +61,9 @@ python ./etoda.py --hours "[0,2,4]"
 (3) Run program with different drug models
 
 python ./etoda.py --drug_model_path ch.tucuxi.imatinib.gotta2012.tdd 
+
 python ./etoda.py --drug_model_path ch.tucuxi.vancomycin.liu2019.tdd
+
 python ./etoda.py --drug_model_path ch.tucuxi.vancomycin.aucliu2019.tdd
 
 (4) Run program with different points in concentration axis
