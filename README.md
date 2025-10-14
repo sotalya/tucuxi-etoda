@@ -44,8 +44,6 @@
   --sample_date SAMPLE_DATE
                         The date for the first sample. 
                         
-  --num_con_threshold NUM_CON_THRESHOLD
-                        The number of ranges divided for target setting
                         
 
 
